@@ -21,11 +21,14 @@ else
 
 VPATH = $(SRCDIR)
 
-CFLAGS   =  -pedantic -Wall -g -fmessage-length=0 -pthread
+CFLAGS   =  -Wall -g -fmessage-length=0 -pthread
 
-LDFLAGS  =  -pedantic -Wall -g -fmessage-length=0 -pthread
+LDFLAGS  =  -Wall -g -fmessage-length=0 -pthread
 			
-OBJS     =  user_kernel_interface.o
+OBJS     =  \
+	user_kernel_interface.o \
+	list_test.o \
+	container_test.o
 			
 LIBS     =  -lpthread
 
@@ -34,7 +37,7 @@ TARGET   =  user_kernel_interface
 $(TARGET):  $(OBJS)
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
 	
-%.o: %.c
+%.o: %.c uki/*.h
 	$(CC) $(CFLAGS) -c $<	
 	
 all: $(TARGET)
@@ -49,7 +52,10 @@ test: $(TARGET)
 	
 install:
 	sudo cp $(TARGET) /usr/local/bin
-	( cd /usr/local/bin && sudo chown root:staff $(TARGET)  )
+	sudo chown root:staff /usr/local/bin/$(TARGET)
+	sudo cp -rf ../uki /usr/local/include
+	sudo chown -R root:staff /usr/local/include/uki
+	
 	
 #----- Begin Boilerplate
 endif
