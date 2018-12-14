@@ -19,6 +19,8 @@
 #ifndef UKI_TYPES_H_
 #define UKI_TYPES_H_
 
+/** @file */
+
 #include <stdbool.h>
 #include <stddef.h>
 

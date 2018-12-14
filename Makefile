@@ -37,25 +37,28 @@ TARGET   =  user_kernel_interface
 $(TARGET):  $(OBJS)
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
 	
-%.o: %.c uki/*.h
+%.o: %.c $(SRCDIR)/uki/*.h
 	$(CC) $(CFLAGS) -c $<	
 	
 all: $(TARGET)
 	echo "Build OK"
 
-doc: $(DOCDIR)
-	doxygen ../doxygen.conf
-	( cd ../_doc/latex && make )
+doc:
+	doxygen $(SRCDIR)/doxygen.conf
+	( cd $(SRCDIR)/_Documentation/latex && make )
+	cp $(SRCDIR)/_Documentation/latex/refman.pdf \
+		$(SRCDIR)/_Documentation/user_kernel_interface.pdf
 
 test: $(TARGET)
 	./$(TARGET)
 	
-install:
+install: $(TARGET) doc
 	sudo cp $(TARGET) /usr/local/bin
 	sudo chown root:staff /usr/local/bin/$(TARGET)
-	sudo cp -rf ../uki /usr/local/include
+	sudo cp -rf $(SRCDIR)/uki /usr/local/include
 	sudo chown -R root:staff /usr/local/include/uki
-	
+	sudo mkdir -p /usr/local/doc
+	sudo cp $(SRCDIR)/_Documentation/user_kernel_interface.pdf /usr/local/doc
 	
 #----- Begin Boilerplate
 endif

@@ -19,6 +19,8 @@
 #ifndef UKI_POISON_H_
 #define UKI_POISON_H_
 
+/** @file */
+
 /*
  * Architectures might want to move the poison pointer offset
  * into some well-recognized area such as 0xdead000000000000,

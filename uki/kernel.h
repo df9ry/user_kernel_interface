@@ -19,6 +19,8 @@
 #ifndef UKI_KERNEL_H_
 #define UKI_KERNEL_H_
 
+/** @file */
+
 #include <stddef.h>
 
 #define container_of(ptr, type, member) ({                      \

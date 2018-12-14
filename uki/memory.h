@@ -19,6 +19,8 @@
 #ifndef UKI_MEMORY_H_
 #define UKI_MEMORY_H_
 
+/** @file */
+
 #include <stdlib.h>
 
 #define WRITE_ONCE(x, val) x=(val)
