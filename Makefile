@@ -40,7 +40,7 @@ $(TARGET):  $(OBJS)
 %.o: %.c $(SRCDIR)/uki/*.h
 	$(CC) $(CFLAGS) -c $<	
 	
-all: $(TARGET)
+all: $(TARGET) test doc
 	echo "Build OK"
 
 doc:
