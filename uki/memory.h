@@ -19,11 +19,22 @@
 #ifndef UKI_MEMORY_H_
 #define UKI_MEMORY_H_
 
-/** @file */
+/**
+ * @file
+ * @brief Use #include <uki/memory.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdlib.h>
 
 #define WRITE_ONCE(x, val) x=(val)
 #define READ_ONCE(y) y
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_MEMORY_H_ */

@@ -19,7 +19,14 @@
 #ifndef UKI_STDLIB_H_
 #define UKI_STDLIB_H_
 
-/** @file */
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdio.h>
 
@@ -38,5 +45,9 @@ static inline void kfree(void* ptr)
 #define KERN_ALERT "Alert: "
 
 #define printk(...) printf(__VA_ARGS__)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_STDLIB_H_ */

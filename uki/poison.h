@@ -19,7 +19,14 @@
 #ifndef UKI_POISON_H_
 #define UKI_POISON_H_
 
-/** @file */
+/**
+ * @file
+ * @brief Use #include <uki/poison.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * Architectures might want to move the poison pointer offset
@@ -39,5 +46,9 @@
  */
 #define LIST_POISON1  ((void *) 0x00100100 + POISON_POINTER_DELTA)
 #define LIST_POISON2  ((void *) 0x00200200 + POISON_POINTER_DELTA)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_POISON_H_ */
