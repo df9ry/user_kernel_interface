@@ -19,7 +19,14 @@
 #ifndef UKI_TYPES_H_
 #define UKI_TYPES_H_
 
-/** @file */
+/**
+ * @file
+ * @brief Use #include <uki/types.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -37,5 +44,9 @@ struct hlist_node {
   struct hlist_node *next;
   struct hlist_node **pprev;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_TYPES_H_ */

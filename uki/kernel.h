@@ -19,12 +19,23 @@
 #ifndef UKI_KERNEL_H_
 #define UKI_KERNEL_H_
 
-/** @file */
+/**
+ * @file
+ * @brief Use #include <uki/kernel.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stddef.h>
 
 #define container_of(ptr, type, member) ({                      \
                 const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
                 (type *)( (char *)__mptr - offsetof(type,member) );})
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_KERNEL_H_ */
