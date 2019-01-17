@@ -40,7 +40,7 @@ $(TARGET):  $(OBJS)
 %.o: %.c $(SRCDIR)/uki/*.h
 	$(CC) $(CFLAGS) -c $<	
 	
-all: $(TARGET) test doc
+all: $(TARGET)
 	echo "Build OK"
 
 doc:
@@ -52,13 +52,8 @@ doc:
 test: $(TARGET)
 	./$(TARGET)
 	
-install: $(TARGET) doc
-	sudo cp $(TARGET) /usr/local/bin
-	sudo chown root:staff /usr/local/bin/$(TARGET)
-	sudo cp -rf $(SRCDIR)/uki /usr/local/include
-	sudo chown -R root:staff /usr/local/include/uki
-	sudo mkdir -p /usr/local/doc
-	sudo cp $(SRCDIR)/_Documentation/user_kernel_interface.pdf /usr/local/doc
+install: $(TARGET)
+	cp -rf $(SRCDIR)/uki /usr/local/include
 	
 #----- Begin Boilerplate
 endif
