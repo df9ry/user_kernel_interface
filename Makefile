@@ -19,37 +19,31 @@ include target.mk
 else
 #----- End Boilerplate
 
-VPATH = $(SRCDIR)
-
+VPATH    = $(SRCDIR)
 CFLAGS   =  -Wall -g -fmessage-length=0 -pthread
-
-LDFLAGS  =  -Wall -g -fmessage-length=0 -pthread
-			
 OBJS     =  \
 	user_kernel_interface.o \
 	list_test.o \
 	container_test.o
-			
 LIBS     =  -lpthread
-
 TARGET   =  user_kernel_interface
 
+all:
+	echo "Build OK"
+
 $(TARGET):  $(OBJS)
-	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
 	
 %.o: %.c $(SRCDIR)/uki/*.h
 	$(CC) $(CFLAGS) -c $<	
 	
-all: $(TARGET)
-	echo "Build OK"
-
 doc:
 	doxygen $(SRCDIR)/doxygen.conf
-	( cd $(SRCDIR)/_Documentation/latex && make )
-	cp $(SRCDIR)/_Documentation/latex/refman.pdf \
-		$(SRCDIR)/_Documentation/user_kernel_interface.pdf
+	( cd $(SRCDIR)/$(DOCDIR)/latex && make )
+	cp $(SRCDIR)/$(DOCDIR)/latex/refman.pdf \
+		$(SRCDIR)/$(DOCDIR)/user_kernel_interface.pdf
 
 test: $(TARGET)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
 	./$(TARGET)
 	
 install: $(TARGET)
