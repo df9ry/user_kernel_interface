@@ -59,12 +59,12 @@ static inline void INIT_LIST_HEAD(struct list_head *list)
 }
 
 #ifdef CONFIG_DEBUG_LIST
-extern bool __list_add_valid(struct list_head *new,
+extern bool __list_add_valid(struct list_head *_new,
 			      struct list_head *prev,
 			      struct list_head *next);
 extern bool __list_del_entry_valid(struct list_head *entry);
 #else
-static inline bool __list_add_valid(struct list_head *new,
+static inline bool __list_add_valid(struct list_head *_new,
 				struct list_head *prev,
 				struct list_head *next)
 {
@@ -77,49 +77,49 @@ static inline bool __list_del_entry_valid(struct list_head *entry)
 #endif
 
 /*
- * Insert a new entry between two known consecutive entries.
+ * Insert a _new entry between two known consecutive entries.
  *
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-static inline void __list_add(struct list_head *new,
+static inline void __list_add(struct list_head *_new,
 			      struct list_head *prev,
 			      struct list_head *next)
 {
-	if (!__list_add_valid(new, prev, next))
+	if (!__list_add_valid(_new, prev, next))
 		return;
 
-	next->prev = new;
-	new->next = next;
-	new->prev = prev;
-	WRITE_ONCE(prev->next, new);
+	next->prev = _new;
+	_new->next = next;
+	_new->prev = prev;
+	WRITE_ONCE(prev->next, _new);
 }
 
 /**
- * @brief list_add - add a new entry
- * @param new new entry to be added
+ * @brief list_add - add a _new entry
+ * @param _new _new entry to be added
  * @param head list head to add it after
  *
- * Insert a new entry after the specified head.
+ * Insert a _new entry after the specified head.
  * This is good for implementing stacks.
  */
-static inline void list_add(struct list_head *new, struct list_head *head)
+static inline void list_add(struct list_head *_new, struct list_head *head)
 {
-	__list_add(new, head, head->next);
+	__list_add(_new, head, head->next);
 }
 
 
 /**
- * @brief list_add_tail - add a new entry
- * @param new new entry to be added
+ * @brief list_add_tail - add a _new entry
+ * @param _new _new entry to be added
  * @param head list head to add it before
  *
- * Insert a new entry before the specified head.
+ * Insert a _new entry before the specified head.
  * This is useful for implementing queues.
  */
-static inline void list_add_tail(struct list_head *new, struct list_head *head)
+static inline void list_add_tail(struct list_head *_new, struct list_head *head)
 {
-	__list_add(new, head->prev, head);
+	__list_add(_new, head->prev, head);
 }
 
 static inline void __list_del(struct list_head * prev, struct list_head * next)
@@ -150,33 +150,33 @@ static inline void list_del(struct list_head *entry)
 }
 
 /**
- * @brief list_replace - replace old entry by new one
- * @param old the element to be replaced
- * @param new the new element to insert
+ * @brief list_replace - replace _old entry by _new one
+ * @param _old the element to be replaced
+ * @param _new the _new element to insert
  *
- * If @old was empty, it will be overwritten.
+ * If @_old was empty, it will be overwritten.
  */
-static inline void list_replace(struct list_head *old,
-				struct list_head *new)
+static inline void list_replace(struct list_head *_old,
+				struct list_head *_new)
 {
-	new->next = old->next;
-	new->next->prev = new;
-	new->prev = old->prev;
-	new->prev->next = new;
+	_new->next = _old->next;
+	_new->next->prev = _new;
+	_new->prev = _old->prev;
+	_new->prev->next = _new;
 }
 
 /**
- * @brief list_replace - replace old entry and reinitialize it.
- * @param old the element to be replaced
- * @param new the new element to insert
+ * @brief list_replace - replace _old entry and reinitialize it.
+ * @param _old the element to be replaced
+ * @param _new the _new element to insert
  *
- * If @old was empty, it will be overwritten.
+ * If @_old was empty, it will be overwritten.
  */
-static inline void list_replace_init(struct list_head *old,
-					struct list_head *new)
+static inline void list_replace_init(struct list_head *_old,
+					struct list_head *_new)
 {
-	list_replace(old, new);
-	INIT_LIST_HEAD(old);
+	list_replace(_old, _new);
+	INIT_LIST_HEAD(_old);
 }
 
 /**
@@ -311,7 +311,7 @@ static inline void __list_cut_position(struct list_head *list,
 
 /**
  * @brief list_cut_position - cut a list into two
- * @param list a new list to add all removed entries
+ * @param list a _new list to add all removed entries
  * @param head a list with entries
  * @param entry an entry within head, could be the head itself
  *	and if so we won't cut the list
@@ -339,7 +339,7 @@ static inline void list_cut_position(struct list_head *list,
 
 /**
  * @brief list_cut_before - cut a list into two, before given entry
- * @param list a new list to add all removed entries
+ * @param list a _new list to add all removed entries
  * @param head a list with entries
  * @param entry an entry within head, could be the head itself
  *
@@ -383,7 +383,7 @@ static inline void __list_splice(const struct list_head *list,
 
 /**
  * @brief list_splice - join two lists, this is designed for stacks
- * @param list the new list to add.
+ * @param list the _new list to add.
  * @param head the place to add it in the first list.
  */
 static inline void list_splice(const struct list_head *list,
@@ -395,7 +395,7 @@ static inline void list_splice(const struct list_head *list,
 
 /**
  * @brief list_splice_tail - join two lists, each list being a queue
- * @param list the new list to add.
+ * @param list the _new list to add.
  * @param head the place to add it in the first list.
  */
 static inline void list_splice_tail(struct list_head *list,
@@ -407,7 +407,7 @@ static inline void list_splice_tail(struct list_head *list,
 
 /**
  * @brief list_splice_init - join two lists and reinitialise the emptied list.
- * @param list the new list to add.
+ * @param list the _new list to add.
  * @param head the place to add it in the first list.
  *
  * The list at @list is reinitialised
@@ -423,7 +423,7 @@ static inline void list_splice_init(struct list_head *list,
 
 /**
  * @brief list_splice_tail_init - join two lists and reinitialise the emptied list
- * @param list the new list to add.
+ * @param list the _new list to add.
  * @param head the place to add it in the first list.
  *
  * Each of the lists is a queue.
@@ -804,13 +804,13 @@ hlist_is_singular_node(struct hlist_node *n, struct hlist_head *h)
  * Move a list from one list head to another. Fixup the pprev
  * reference of the first entry if it exists.
  */
-static inline void hlist_move_list(struct hlist_head *old,
-				   struct hlist_head *new)
+static inline void hlist_move_list(struct hlist_head *_old,
+				   struct hlist_head *_new)
 {
-	new->first = old->first;
-	if (new->first)
-		new->first->pprev = &new->first;
-	old->first = NULL;
+	_new->first = _old->first;
+	if (_new->first)
+		_new->first->pprev = &_new->first;
+	_old->first = NULL;
 }
 
 #define hlist_entry(ptr, type, member) container_of(ptr,type,member)
