@@ -1,6 +1,5 @@
 /*
- *  Project user_kernel_interface
- *  stdlib.h
+ *  Project: user_kernel_interface - File: ffs.h
  *  Copyright (C) 2019 - Tania Hagn - tania@df9ry.de
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
@@ -16,47 +15,46 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UKI_STDLIB_H_
-#define UKI_STDLIB_H_
+#ifndef UKI_FFS_H_
+#define UKI_FFS_H_
+
+#include "types.h"
 
 /**
- * @file
- * @brief Use #include <uki/stdlib.h> to use this library.
+ * __ffs - find first bit in word.
+ * @word: The word to search
+ *
+ * Undefined if no bit exists, so code should check against 0 first.
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define GFP_KERNEL 0
-#define __GFP_ZERO 1
-
-static inline void* kmalloc(size_t size, int flags)
+static inline unsigned long __ffs(unsigned long word)
 {
-	void *mem = malloc(size);
-	if (!mem)
-		return NULL;
-	if (flags & __GFP_ZERO)
-		memset(mem, 0x00, size);
-	return mem;
-}
+	int num = 0;
 
-static inline void kfree(void* ptr)
-{
-	free(ptr);
-}
-
-#define KERN_ALERT "Alert: "
-#define KERN_ERR   "Error: "
-
-#define printk(...) printf(__VA_ARGS__)
-
-#ifdef __cplusplus
-}
+#if BITS_PER_LONG == 64
+	if ((word & 0xffffffff) == 0) {
+		num += 32;
+		word >>= 32;
+	}
 #endif
+	if ((word & 0xffff) == 0) {
+		num += 16;
+		word >>= 16;
+	}
+	if ((word & 0xff) == 0) {
+		num += 8;
+		word >>= 8;
+	}
+	if ((word & 0xf) == 0) {
+		num += 4;
+		word >>= 4;
+	}
+	if ((word & 0x3) == 0) {
+		num += 2;
+		word >>= 2;
+	}
+	if ((word & 0x1) == 0)
+		num += 1;
+	return num;
+}
 
-#endif /* UKI_STDLIB_H_ */
+#endif /* UKI_FFS_H_ */

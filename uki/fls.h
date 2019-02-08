@@ -1,6 +1,5 @@
 /*
- *  Project user_kernel_interface
- *  stdlib.h
+ *  Project: user_kernel_interface - File: fls.h
  *  Copyright (C) 2019 - Tania Hagn - tania@df9ry.de
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
@@ -16,47 +15,44 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UKI_STDLIB_H_
-#define UKI_STDLIB_H_
+#ifndef UKI_FLS_H_
+#define UKI_FLS_H_
 
 /**
- * @file
- * @brief Use #include <uki/stdlib.h> to use this library.
+ * fls - find last (most-significant) bit set
+ * @x: the word to search
+ *
+ * This is defined the same way as ffs.
+ * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define GFP_KERNEL 0
-#define __GFP_ZERO 1
-
-static inline void* kmalloc(size_t size, int flags)
+static inline int fls(unsigned int x)
 {
-	void *mem = malloc(size);
-	if (!mem)
-		return NULL;
-	if (flags & __GFP_ZERO)
-		memset(mem, 0x00, size);
-	return mem;
+	int r = 32;
+
+	if (!x)
+		return 0;
+	if (!(x & 0xffff0000u)) {
+		x <<= 16;
+		r -= 16;
+	}
+	if (!(x & 0xff000000u)) {
+		x <<= 8;
+		r -= 8;
+	}
+	if (!(x & 0xf0000000u)) {
+		x <<= 4;
+		r -= 4;
+	}
+	if (!(x & 0xc0000000u)) {
+		x <<= 2;
+		r -= 2;
+	}
+	if (!(x & 0x80000000u)) {
+		x <<= 1;
+		r -= 1;
+	}
+	return r;
 }
 
-static inline void kfree(void* ptr)
-{
-	free(ptr);
-}
-
-#define KERN_ALERT "Alert: "
-#define KERN_ERR   "Error: "
-
-#define printk(...) printf(__VA_ARGS__)
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* UKI_STDLIB_H_ */
+#endif /* UKI_FLS_H_ */

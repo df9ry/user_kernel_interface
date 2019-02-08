@@ -1,6 +1,5 @@
 /*
- *  Project user_kernel_interface
- *  stdlib.h
+ *  Project: user_kernel_interface - File: typecheck.h
  *  Copyright (C) 2019 - Tania Hagn - tania@df9ry.de
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
@@ -16,47 +15,27 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UKI_STDLIB_H_
-#define UKI_STDLIB_H_
+#ifndef UKI_TYPECHECK_H_
+#define UKI_TYPECHECK_H_
 
-/**
- * @file
- * @brief Use #include <uki/stdlib.h> to use this library.
+/*
+ * Check at compile time that something is of a particular type.
+ * Always evaluates to 1 so you may use it easily in comparisons.
  */
+#define typecheck(type,x) \
+({	type __dummy; \
+	typeof(x) __dummy2; \
+	(void)(&__dummy == &__dummy2); \
+	1; \
+})
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*
+ * Check at compile time that 'function' is a certain type, or is a pointer
+ * to that type (needs to use typedef for the function type.)
+ */
+#define typecheck_fn(type,function) \
+({	typeof(type) __tmp = function; \
+	(void)__tmp; \
+})
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define GFP_KERNEL 0
-#define __GFP_ZERO 1
-
-static inline void* kmalloc(size_t size, int flags)
-{
-	void *mem = malloc(size);
-	if (!mem)
-		return NULL;
-	if (flags & __GFP_ZERO)
-		memset(mem, 0x00, size);
-	return mem;
-}
-
-static inline void kfree(void* ptr)
-{
-	free(ptr);
-}
-
-#define KERN_ALERT "Alert: "
-#define KERN_ERR   "Error: "
-
-#define printk(...) printf(__VA_ARGS__)
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* UKI_STDLIB_H_ */
+#endif /* UKI_TYPECHECK_H_ */

@@ -34,6 +34,28 @@ extern "C" {
                 const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
                 (type *)( (char *)__mptr - offsetof(type,member) );})
 
+#define min(x, y) ({ \
+		typeof(x) _min1 = x; \
+		typeof(y) _min2 = y; \
+		(void) (&_min1 == &_min2); \
+		_min1 <_min2 ? _min1 :  _min2; })
+
+#define max(x, y) ({ \
+		typeof(x) _max1 = x; \
+		typeof(y) _max2 = y; \
+		(void) (&_max1 == &_max2); \
+		_max1 > _max2 ? _max1 : _max2; })
+
+/*
+ * 'kernel.h' contains some often-used function prototypes etc
+ */
+#define __ALIGN_KERNEL(x, a) __ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
+#define __ALIGN_KERNEL_MASK(x, mask) (((x) + (mask)) & ~(mask))
+
+#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
+
+#define DIV_ROUND_UP __KERNEL_DIV_ROUND_UP
+
 #ifdef __cplusplus
 }
 #endif

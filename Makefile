@@ -17,37 +17,49 @@
 ifeq (,$(filter _%,$(notdir $(CURDIR))))
 include target.mk
 else
-#----- End Boilerplate
 
 VPATH    = $(SRCDIR)
-CFLAGS   =  -Wall -g -fmessage-length=0 -pthread
-OBJS     =  \
-	user_kernel_interface.o \
-	list_test.o \
-	container_test.o
-LIBS     =  -lpthread
-TARGET   =  user_kernel_interface
+CFLAGS   =  -Wall -Werror -g -ggdb -fpic -fmessage-length=0 -pthread
 
-all:
+OBJS     =  jiffies.o timer.o div64.o
+T_OBJS   =  list_test.o container_test.o timer_test.o
+LIBS     =  -lpthread
+TARGET   =  libuki.$(SOEXT)
+
+all: $(TARGET)
 	echo "Build OK"
 
-$(TARGET):  $(OBJS)
+$(TARGET): $(OBJS)
+	$(CC) -shared $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
 	
-%.o: %.c $(SRCDIR)/uki/*.h
-	$(CC) $(CFLAGS) -c $<	
+%.o: %.c $(SRCDIR)
+	$(CC) -shared $(CFLAGS) -c $<	
 	
 doc:
 	doxygen $(SRCDIR)/doxygen.conf
 	( cd $(SRCDIR)/$(DOCDIR)/latex && make )
 	cp $(SRCDIR)/$(DOCDIR)/latex/refman.pdf \
-		$(SRCDIR)/$(DOCDIR)/user_kernel_interface.pdf
+		$(SRCDIR)/$(DOCDIR)/uki.pdf
 
-test: $(TARGET)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
-	./$(TARGET)
+test: $(TARGET) $(T_OBJS)
+	$(CC) $(CFLAGS) \
+		-o uki_test \
+		$(T_OBJS) \
+		-L$(SRCDIR)/_Debug \
+		-luki \
+		$(SRCDIR)/uki_test.c
+	sh -c "LD_LIBRARY_PATH=./ ./uki_test"
 	
 install: $(TARGET)
-	cp -rf $(SRCDIR)/uki /usr/local/include
-	
-#----- Begin Boilerplate
+ifeq ($(OS),Cygwin)
+	cp $(TARGET) /usr/local/lib
+else
+	cp libuki.so /usr/local/lib/libuki.so.0.1.0
+	chmod 0755       /usr/local/lib/libuki.so.0.1.0	
+	( cd /usr/local/lib && ln -sf libuki.so.0.1.0 libuki.so.0.1 )
+	( cd /usr/local/lib && ln -sf libuki.so.0.1.0 libuki.so.0   )
+	( cd /usr/local/lib && ln -sf libuki.so.0.1.0 libuki.so     )
+endif
+	cp -rf ../uki /usr/local/include
+
 endif
