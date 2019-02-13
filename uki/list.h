@@ -145,8 +145,11 @@ static inline void __list_del_entry(struct list_head *entry)
 static inline void list_del(struct list_head *entry)
 {
 	__list_del_entry(entry);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-arith"
 	entry->next = (struct list_head*)LIST_POISON1;
 	entry->prev = (struct list_head*)LIST_POISON2;
+#pragma GCC diagnostic pop
 }
 
 /**
@@ -736,8 +739,11 @@ static inline void __hlist_del(struct hlist_node *n)
 static inline void hlist_del(struct hlist_node *n)
 {
 	__hlist_del(n);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-arith"
 	n->next = (struct hlist_node*)LIST_POISON1;
 	n->pprev = (struct hlist_node**)LIST_POISON2;
+#pragma GCC diagnostic pop
 }
 
 static inline void hlist_del_init(struct hlist_node *n)
