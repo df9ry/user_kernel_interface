@@ -18,6 +18,15 @@
 #ifndef UKI_BITOPS_H_
 #define UKI_BITOPS_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "types.h"
 #include "fls.h"
 #include "fls64.h"
@@ -285,6 +294,10 @@ static inline unsigned long __ffs64(u64 word)
  */
 extern unsigned long find_last_bit(const unsigned long *addr,
 				   unsigned long size);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* UKI_BITOPS_H_ */

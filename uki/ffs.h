@@ -18,6 +18,15 @@
 #ifndef UKI_FFS_H_
 #define UKI_FFS_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "types.h"
 
 /**
@@ -56,5 +65,9 @@ static inline unsigned long __ffs(unsigned long word)
 		num += 1;
 	return num;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_FFS_H_ */

@@ -18,6 +18,15 @@
 #ifndef UKI_MATH64_H_
 #define UKI_MATH64_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "types.h"
 #include "bitops.h"
 #include "div64.h"
@@ -261,5 +270,9 @@ static inline u64 mul_u64_u32_div(u64 a, u32 mul, u32 divisor)
 	return rl.ll;
 }
 #endif /* mul_u64_u32_div */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_MATH64_H_ */

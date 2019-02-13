@@ -18,6 +18,15 @@
 #ifndef UKI_TYPECHECK_H_
 #define UKI_TYPECHECK_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Check at compile time that something is of a particular type.
  * Always evaluates to 1 so you may use it easily in comparisons.
@@ -37,5 +46,9 @@
 ({	typeof(type) __tmp = function; \
 	(void)__tmp; \
 })
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_TYPECHECK_H_ */

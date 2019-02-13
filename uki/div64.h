@@ -18,6 +18,15 @@
 #ifndef UKI_DIV64_H_
 #define UKI_DIV64_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "types.h"
 #include "log2.h"
 
@@ -73,5 +82,9 @@ static inline u64 div_u64_rem(u64 dividend, u32 divisor, u32 *remainder)
 	return d.v64;
 }
 #define div_u64_rem	div_u64_rem
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_DIV64_H_ */

@@ -18,6 +18,15 @@
 #ifndef UKI_JIFFIES_H_
 #define UKI_JIFFIES_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "types.h"
 #include "kernel.h"
 #include "math64.h"
@@ -470,5 +479,9 @@ extern u64 nsecs_to_jiffies64(u64 n);
 extern unsigned long nsecs_to_jiffies(u64 n);
 
 #define TIMESTAMP_SIZE	30
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_JIFFIES_H_ */

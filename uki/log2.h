@@ -18,6 +18,15 @@
 #ifndef UKI_LOG2_H_
 #define UKI_LOG2_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "types.h"
 
 /*
@@ -209,5 +218,9 @@ unsigned long __rounddown_pow_of_two(unsigned long n)
  */
 
 #define order_base_2(n) ilog2(roundup_pow_of_two(n))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_LOG2_H_ */

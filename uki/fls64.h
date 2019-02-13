@@ -18,6 +18,15 @@
 #ifndef UKI_FLS64_H_
 #define UKI_FLS64_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "types.h"
 
 /**
@@ -48,6 +57,10 @@ static __always_inline int fls64(__u64 x)
 }
 #else
 #error BITS_PER_LONG not 32 or 64
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* UKI_FLS64_H_ */

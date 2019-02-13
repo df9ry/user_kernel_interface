@@ -18,6 +18,15 @@
 #ifndef UKI_DELAY_H_
 #define UKI_DELAY_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Using udelay() for intervals greater than a few milliseconds can
  * risk overflow for high loops_per_jiffy (high bogomips) machines. The
@@ -57,5 +66,9 @@ static inline void ssleep(unsigned int seconds)
 {
 	msleep(seconds * 1000);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_DELAY_H_ */

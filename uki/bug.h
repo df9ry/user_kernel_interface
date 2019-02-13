@@ -18,6 +18,15 @@
 #ifndef BUG_H_
 #define BUG_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <assert.h>
 
 #define BUG_ON(__BUG_ON_cond) assert(!(__BUG_ON_cond))
@@ -27,5 +36,9 @@
 #define BUG() abort()
 
 #define WARN_ON(__WARN_ON_cond) {}
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* BUG_H_ */

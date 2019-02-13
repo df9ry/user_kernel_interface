@@ -18,6 +18,15 @@
 #ifndef UKI_TIME64_H_
 #define UKI_TIME64_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "types.h"
 
 #include <time.h>
@@ -241,6 +250,10 @@ static inline void timespec64_add_ns(struct timespec64 *a, u64 ns)
 	a->tv_nsec = ns;
 }
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* UKI_TIME64_H_ */

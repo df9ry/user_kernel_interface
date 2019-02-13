@@ -18,6 +18,15 @@
 #ifndef UKI_TIMER_H_
 #define UKI_TIMER_H_
 
+/**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "types.h"
 #include "poison.h"
 
@@ -168,5 +177,9 @@ unsigned long __round_jiffies_up(unsigned long j, int cpu);
 unsigned long __round_jiffies_up_relative(unsigned long j, int cpu);
 unsigned long round_jiffies_up(unsigned long j);
 unsigned long round_jiffies_up_relative(unsigned long j);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_TIMER_H_ */

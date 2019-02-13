@@ -19,6 +19,15 @@
 #define UKI_FLS_H_
 
 /**
+ * @file
+ * @brief Use #include <uki/stdlib.h> to use this library.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
  * fls - find last (most-significant) bit set
  * @x: the word to search
  *
@@ -54,5 +63,9 @@ static inline int fls(unsigned int x)
 	}
 	return r;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UKI_FLS_H_ */
