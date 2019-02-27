@@ -117,23 +117,6 @@ static inline struct tvec_base *tbase_get_base(struct tvec_base *base)
 	return ((struct tvec_base *)((unsigned long)base & ~TBASE_DEFERRABLE_FLAG));
 }
 
-#if 0
-static inline void timer_set_deferrable(struct timer_list *timer)
-{
-	timer->base = ((struct tvec_base *)((unsigned long)(timer->base) |
-				       TBASE_DEFERRABLE_FLAG));
-}
-#endif
-
-#if 0
-static inline void
-timer_set_base(struct timer_list *timer, struct tvec_base *new_base)
-{
-	timer->base = (struct tvec_base *)((unsigned long)(new_base) |
-				      tbase_get_deferrable(timer->base));
-}
-#endif
-
 static unsigned long round_jiffies_common(unsigned long j, int cpu,
 		bool force_up)
 {
@@ -398,16 +381,6 @@ void init_timer_key(struct timer_list *timer,
 	__init_timer(timer, name, key);
 }
 
-#if 0
-void init_timer_deferrable_key(struct timer_list *timer,
-			       const char *name,
-			       struct lock_class_key *key)
-{
-	init_timer_key(timer, name, key);
-	timer_set_deferrable(timer);
-}
-#endif
-
 static inline void detach_timer(struct timer_list *timer,
 				int clear_pending)
 {
@@ -442,70 +415,6 @@ static struct tvec_base *lock_timer_base(struct timer_list *timer,
 	BUG_ON(prelock_base != timer->base);
 	return base;
 }
-
-#if 0
-static inline int
-__mod_timer(struct timer_list *timer, unsigned long expires,
-						bool pending_only, int pinned)
-{
-	struct tvec_base *base, *new_base;
-	unsigned long flags;
-	int ret = 0, cpu;
-
-	timer_stats_timer_set_start_info(timer);
-	BUG_ON(!timer->function);
-
-	base = lock_timer_base(timer, &flags);
-
-	if (timer_pending(timer)) {
-		detach_timer(timer, 0);
-		if (timer->expires == base->next_timer &&
-		    !tbase_get_deferrable(timer->base))
-			base->next_timer = base->timer_jiffies;
-		ret = 1;
-	} else {
-		if (pending_only)
-			goto out_unlock;
-	}
-
-	debug_activate(timer, expires);
-
-	new_base = __get_cpu_var(tvec_bases);
-
-	cpu = smp_processor_id();
-
-	new_base = per_cpu(tvec_bases, cpu);
-
-	if (base != new_base) {
-		/*
-		 * We are trying to schedule the timer on the local CPU.
-		 * However we can't change timer's base while it is running,
-		 * otherwise del_timer_sync() can't detect that the timer's
-		 * handler yet has not finished. This also guarantees that
-		 * the timer is serialized wrt itself.
-		 */
-		if (likely(base->running_timer != timer)) {
-			/* See the comment in lock_timer_base() */
-			timer_set_base(timer, NULL);
-			spin_unlock(&base->lock);
-			base = new_base;
-			spin_lock(&base->lock);
-			timer_set_base(timer, base);
-		}
-	}
-
-	internal_add_timer(base, timer);
-	timer->expires = expires;
-	if (time_before(timer->expires, base->next_timer) &&
-	    (!tbase_get_deferrable(timer->base)))
-		base->next_timer = timer->expires;
-
-out_unlock:
-	spin_unlock_irqrestore(&base->lock, flags);
-
-	return ret;
-}
-#endif
 
 static inline int
 __mod_timer(struct timer_list *timer, unsigned long expires,
@@ -588,29 +497,6 @@ int mod_timer(struct timer_list *timer, unsigned long expires)
 	return __mod_timer(timer, expires, false, TIMER_NOT_PINNED);
 }
 
-#if 0
-/**
- * mod_timer_pinned - modify a timer's timeout
- * @timer: the timer to be modified
- * @expires: new timeout in jiffies
- *
- * mod_timer_pinned() is a way to update the expire field of an
- * active timer (if the timer is inactive it will be activated)
- * and not allow the timer to be migrated to a different CPU.
- *
- * mod_timer_pinned(timer, expires) is equivalent to:
- *
- *     del_timer(timer); timer->expires = expires; add_timer(timer);
- */
-int mod_timer_pinned(struct timer_list *timer, unsigned long expires)
-{
-	if (timer->expires == expires && timer_pending(timer))
-		return 1;
-
-	return __mod_timer(timer, expires, false, TIMER_PINNED);
-}
-#endif
-
 /**
  * add_timer - start a timer
  * @timer: the timer to be added
@@ -630,41 +516,6 @@ void add_timer(struct timer_list *timer)
 	BUG_ON(timer_pending(timer));
 	mod_timer(timer, timer->expires);
 }
-
-#if 0
-/**
- * add_timer_on - start a timer on a particular CPU
- * @timer: the timer to be added
- * @cpu: the CPU to start it on
- *
- * This is not very scalable on SMP. Double adds are not possible.
- */
-void add_timer_on(struct timer_list *timer, int cpu)
-{
-	struct tvec_base *base = per_cpu(tvec_bases, cpu);
-	unsigned long flags;
-
-	timer_stats_timer_set_start_info(timer);
-	BUG_ON(timer_pending(timer) || !timer->function);
-	spin_lock_irqsave(&base->lock, flags);
-	timer_set_base(timer, base);
-	debug_activate(timer, timer->expires);
-	if (time_before(timer->expires, base->next_timer) &&
-	    !tbase_get_deferrable(timer->base))
-		base->next_timer = timer->expires;
-	internal_add_timer(base, timer);
-	/*
-	 * Check whether the other CPU is idle and needs to be
-	 * triggered to reevaluate the timer wheel when nohz is
-	 * active. We are protected against the other CPU fiddling
-	 * with the timer by holding the timer base lock. This also
-	 * makes sure that a CPU on the way to idle can not evaluate
-	 * the timer wheel.
-	 */
-	wake_up_idle_cpu(cpu);
-	spin_unlock_irqrestore(&base->lock, flags);
-}
-#endif
 
 /**
  * del_timer - deactive a timer.
@@ -793,133 +644,6 @@ static inline void __run_timers(struct tvec_base *base)
 	spin_unlock_irq(&base->lock);
 }
 
-#if 0
-/*
- * Called from the timer interrupt handler to charge one tick to the current
- * process.  user_tick is 1 if the tick is user time, 0 for system.
- */
-void update_process_times(int user_tick)
-{
-	struct task_struct *p = current;
-	int cpu = smp_processor_id();
-
-	/* Note: this timer irq context must be accounted for as well. */
-	account_process_tick(p, user_tick);
-	run_local_timers();
-	rcu_check_callbacks(cpu, user_tick);
-	printk_tick();
-	scheduler_tick();
-	run_posix_cpu_timers(p);
-}
-#endif
-
-#if 0
-/*
- * This function runs timers and the timer-tq in bottom half context.
- */
-static void run_timer_softirq(struct softirq_action *h)
-{
-	struct tvec_base *base = __get_cpu_var(tvec_bases);
-
-	perf_event_do_pending();
-
-	hrtimer_run_pending();
-
-	if (time_after_eq(jiffies, base->timer_jiffies))
-		__run_timers(base);
-}
-#endif
-
-#if 0
-/*
- * Called by the local, per-CPU timer interrupt on SMP.
- */
-void run_local_timers(void)
-{
-	hrtimer_run_queues();
-	raise_softirq(TIMER_SOFTIRQ);
-	softlockup_tick();
-}
-#endif
-
-#if 0
-/**
- * schedule_timeout - sleep until timeout
- * @timeout: timeout value in jiffies
- *
- * Make the current task sleep until @timeout jiffies have
- * elapsed. The routine will return immediately unless
- * the current task state has been set (see set_current_state()).
- *
- * You can set the task state as follows -
- *
- * %TASK_UNINTERRUPTIBLE - at least @timeout jiffies are guaranteed to
- * pass before the routine returns. The routine will return 0
- *
- * %TASK_INTERRUPTIBLE - the routine may return early if a signal is
- * delivered to the current task. In this case the remaining time
- * in jiffies will be returned, or 0 if the timer expired in time
- *
- * The current task state is guaranteed to be TASK_RUNNING when this
- * routine returns.
- *
- * Specifying a @timeout value of %MAX_SCHEDULE_TIMEOUT will schedule
- * the CPU away without a bound on the timeout. In this case the return
- * value will be %MAX_SCHEDULE_TIMEOUT.
- *
- * In all cases the return value is guaranteed to be non-negative.
- */
-signed long schedule_timeout(signed long timeout)
-{
-	struct timer_list timer;
-	unsigned long expire;
-
-	switch (timeout)
-	{
-	case MAX_SCHEDULE_TIMEOUT:
-		/*
-		 * These two special cases are useful to be comfortable
-		 * in the caller. Nothing more. We could take
-		 * MAX_SCHEDULE_TIMEOUT from one of the negative value
-		 * but I' d like to return a valid offset (>=0) to allow
-		 * the caller to do everything it want with the retval.
-		 */
-		schedule();
-		goto out;
-	default:
-		/*
-		 * Another bit of PARANOID. Note that the retval will be
-		 * 0 since no piece of kernel is supposed to do a check
-		 * for a negative retval of schedule_timeout() (since it
-		 * should never happens anyway). You just have the printk()
-		 * that will tell you if something is gone wrong and where.
-		 */
-		if (timeout < 0) {
-			printk(KERN_ERR "schedule_timeout: wrong timeout "
-				"value %lx\n", timeout);
-			dump_stack();
-			current->state = TASK_RUNNING;
-			goto out;
-		}
-	}
-
-	expire = timeout + jiffies;
-
-	setup_timer_on_stack(&timer, process_timeout, (unsigned long)current);
-	__mod_timer(&timer, expire, false, TIMER_NOT_PINNED);
-	schedule();
-	del_singleshot_timer_sync(&timer);
-
-	/* Remove the timer from the object tracker */
-	destroy_timer_on_stack(&timer);
-
-	timeout = expire - jiffies;
-
- out:
-	return timeout < 0 ? 0 : timeout;
-}
-#endif
-
 static int init_timers_uki(void)
 {
 	int j;
@@ -941,22 +665,100 @@ static int init_timers_uki(void)
 	return 0;
 }
 
-#if 0
-static struct notifier_block __cpuinitdata timers_nb = {
-	.notifier_call	= timer_cpu_notify,
-};
-#endif
+#ifdef __MINGW32__
+LARGE_INTEGER getFILETIMEoffset()
+{
+    SYSTEMTIME s;
+    FILETIME f;
+    LARGE_INTEGER t;
 
-static struct timespec ts;
+    s.wYear = 1970;
+    s.wMonth = 1;
+    s.wDay = 1;
+    s.wHour = 0;
+    s.wMinute = 0;
+    s.wSecond = 0;
+    s.wMilliseconds = 0;
+    SystemTimeToFileTime(&s, &f);
+    t.QuadPart = f.dwHighDateTime;
+    t.QuadPart <<= 32;
+    t.QuadPart |= f.dwLowDateTime;
+    return (t);
+}
+
+int
+clock_gettime(int X, struct timeval *tv)
+{
+    LARGE_INTEGER           t;
+    FILETIME            f;
+    double                  microseconds;
+    static LARGE_INTEGER    offset;
+    static double           frequencyToMicroseconds;
+    static int              initialized = 0;
+    static BOOL             usePerformanceCounter = 0;
+
+    if (!initialized) {
+        LARGE_INTEGER performanceFrequency;
+        initialized = 1;
+        usePerformanceCounter = QueryPerformanceFrequency(&performanceFrequency);
+        if (usePerformanceCounter) {
+            QueryPerformanceCounter(&offset);
+            frequencyToMicroseconds = (double)performanceFrequency.QuadPart / 1000000.;
+        } else {
+            offset = getFILETIMEoffset();
+            frequencyToMicroseconds = 10.;
+        }
+    }
+    if (usePerformanceCounter) QueryPerformanceCounter(&t);
+    else {
+        GetSystemTimeAsFileTime(&f);
+        t.QuadPart = f.dwHighDateTime;
+        t.QuadPart <<= 32;
+        t.QuadPart |= f.dwLowDateTime;
+    }
+
+    t.QuadPart -= offset.QuadPart;
+    microseconds = (double)t.QuadPart / frequencyToMicroseconds;
+    t.QuadPart = microseconds;
+    tv->tv_sec = t.QuadPart / 1000000;
+    tv->tv_usec = t.QuadPart % 1000000;
+    return (0);
+}
+
+void uki_usleep(__int64 usec)
+{
+    HANDLE timer;
+    LARGE_INTEGER ft;
+
+    ft.QuadPart = -(10*usec); // Convert to 100 nanosecond interval, negative value indicates relative time
+
+    timer = CreateWaitableTimer(NULL, TRUE, NULL);
+    SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+    WaitForSingleObject(timer, INFINITE);
+    CloseHandle(timer);
+}
+
+#define CLOCK_BOOTTIME 0
+#define time_to_jiffies(ti) timeval_to_jiffies(ti)
+static struct timeval ti;
+#else
+
+void uki_usleep(uint64_t usec) {
+	usleep(usec);
+}
+
+#define time_to_jiffies(ti) timespec_to_jiffies(ti)
+static struct timespec ti;
+#endif
 
 void *jiffies_worker(void *id)
 {
 	while (true) {
-		int erc = clock_gettime(CLOCK_BOOTTIME, &ts);
+		int erc = clock_gettime(CLOCK_BOOTTIME, &ti);
 		BUG_ON(erc != 0);
-		jiffies = timespec_to_jiffies(&ts);
+		jiffies = time_to_jiffies(&ti);
 		__run_timers(&uki_tvec_base);
-		usleep(10 * USEC_PER_MSEC);
+		uki_usleep(10 * USEC_PER_MSEC);
 	} /* end while */
 }
 
@@ -966,9 +768,9 @@ static bool initialized = false;
 void init_timers(void)
 {
 	BUG_ON(initialized);
-	int erc = clock_gettime(CLOCK_BOOTTIME, &ts);
+	int erc = clock_gettime(CLOCK_BOOTTIME, &ti);
 	BUG_ON(erc != 0);
-	jiffies = timespec_to_jiffies(&ts);
+	jiffies = time_to_jiffies(&ti);
 	erc = init_timers_uki();
 	BUG_ON(erc != 0);
 	pthread_attr_t thread_args;
@@ -985,7 +787,7 @@ void init_timers(void)
  */
 void msleep(unsigned int msecs)
 {
-	usleep(msecs * USEC_PER_MSEC);
+	uki_usleep(msecs * USEC_PER_MSEC);
 }
 
 /**
@@ -995,6 +797,6 @@ void msleep(unsigned int msecs)
 unsigned long msleep_interruptible(unsigned int msecs)
 {
 	unsigned long timeout = msecs_to_jiffies(msecs) + 1;
-	usleep(msecs * USEC_PER_MSEC);
+	uki_usleep(msecs * USEC_PER_MSEC);
 	return jiffies_to_msecs(timeout);
 }

@@ -49,10 +49,12 @@ extern "C" {
 	({unsigned long __ms=(n); while (__ms--) udelay(1000);}))
 #endif
 
+extern void uki_usleep(uint64_t usec);
+
 #ifndef ndelay
 static inline void ndelay(unsigned long x)
 {
-	usleep(DIV_ROUND_UP(x, 1000));
+	uki_usleep(DIV_ROUND_UP(x, 1000));
 }
 #define ndelay(x) ndelay(x)
 #endif

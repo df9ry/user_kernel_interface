@@ -51,8 +51,8 @@ test: $(TARGET) $(T_OBJS)
 	sh -c "LD_LIBRARY_PATH=./ ./uki_test"
 	
 install: $(TARGET)
-ifeq ($(OS),Cygwin)
-	cp $(TARGET) /usr/local/lib
+ifneq ($(OS),GNU/Linux)
+	cp $(TARGET) $(LOCAL)/$(SODIR)
 else
 	cp libuki.so /usr/local/lib/libuki.so.0.1.0
 	chmod 0755       /usr/local/lib/libuki.so.0.1.0	
@@ -60,6 +60,6 @@ else
 	( cd /usr/local/lib && ln -sf libuki.so.0.1.0 libuki.so.0   )
 	( cd /usr/local/lib && ln -sf libuki.so.0.1.0 libuki.so     )
 endif
-	cp -rf ../uki /usr/local/include
+	cp -rf ../uki $(LOCAL)/include
 
 endif

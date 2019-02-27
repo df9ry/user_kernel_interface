@@ -28,7 +28,11 @@
 extern "C" {
 #endif
 
+#ifdef __MINGW32__
+#define __BITS_PER_LONG 32
+#else
 #include <asm-generic/bitsperlong.h>
+#endif
 
 #include <stdbool.h>
 #include <stdint.h>

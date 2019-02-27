@@ -25,10 +25,17 @@ OS := $(shell uname -o)
 export OS
 ifneq ($(OS),GNU/Linux)
 	SOEXT := dll
+	SODIR := bin
+	LOCAL := $(MINGW_HOME)
 else
 	SOEXT := so
+	SODIR := lib
+	LOCAL := /usr/local
 endif
-export SOEXT
+export SOEXT SODIR LOCAL
+
+CC := gcc
+export CC
 
 OBJDIR := _$(_CONF)
 export OBJDIR

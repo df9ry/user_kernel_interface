@@ -142,7 +142,7 @@ static inline s64 div_s64(s64 dividend, s32 divisor)
 
 u32 iter_div_u64_rem(u64 dividend, u32 divisor, u64 *remainder);
 
-static __always_inline u32
+static inline u32
 __iter_div_u64_rem(u64 dividend, u32 divisor, u64 *remainder)
 {
 	u32 ret = 0;

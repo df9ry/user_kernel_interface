@@ -19,8 +19,6 @@
 #include "uki/bug.h"
 #include "uki/time64.h"
 
-#include <asm-generic/param.h>
-
 unsigned long volatile __jiffy_data jiffies = INITIAL_JIFFIES;
 
 /*
@@ -128,12 +126,7 @@ struct timespec ns_to_timespec(const s64 nsec)
 	return ts;
 }
 
-/**
- * ns_to_timeval - Convert nanoseconds to timeval
- * @nsec:       the nanoseconds value to be converted
- *
- * Returns the timeval representation of the nsec parameter.
- */
+#if 0
 struct timeval ns_to_timeval(const s64 nsec)
 {
 	struct timespec ts = ns_to_timespec(nsec);
@@ -144,6 +137,7 @@ struct timeval ns_to_timeval(const s64 nsec)
 
 	return tv;
 }
+#endif
 
 #if 0
 struct __kernel_old_timeval ns_to_kernel_old_timeval(const s64 nsec)

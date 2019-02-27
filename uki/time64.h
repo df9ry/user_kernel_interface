@@ -122,6 +122,7 @@ static inline struct timespec64 timespec_to_timespec64(const struct timespec ts)
 	return ret;
 }
 
+#ifndef __MINGW32__
 static inline struct itimerspec itimerspec64_to_itimerspec(struct itimerspec64 *its64)
 {
 	struct itimerspec ret;
@@ -130,7 +131,9 @@ static inline struct itimerspec itimerspec64_to_itimerspec(struct itimerspec64 *
 	ret.it_value = timespec64_to_timespec(its64->it_value);
 	return ret;
 }
+#endif
 
+#ifndef __MINGW32__
 static inline struct itimerspec64 itimerspec_to_itimerspec64(struct itimerspec *its)
 {
 	struct itimerspec64 ret;
@@ -139,6 +142,7 @@ static inline struct itimerspec64 itimerspec_to_itimerspec64(struct itimerspec *
 	ret.it_value = timespec_to_timespec64(its->it_value);
 	return ret;
 }
+#endif
 
 static inline int timespec64_equal(const struct timespec64 *a,
 				   const struct timespec64 *b)

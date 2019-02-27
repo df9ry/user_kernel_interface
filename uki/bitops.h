@@ -92,7 +92,7 @@ static inline int get_bitmask_order(unsigned int count)
 	return order;	/* We could be slightly more clever with -1 here... */
 }
 
-static __always_inline unsigned long hweight_long(unsigned long w)
+static inline unsigned long hweight_long(unsigned long w)
 {
 	return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
 }
