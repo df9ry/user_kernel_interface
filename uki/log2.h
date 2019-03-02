@@ -32,7 +32,7 @@ extern "C" {
 /*
  * deal with unrepresentable constant logarithms
  */
-extern __attribute__((const, noreturn))
+extern __attribute__((const))
 int ____ilog2_NaN(void);
 
 /*

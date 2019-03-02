@@ -686,8 +686,7 @@ LARGE_INTEGER getFILETIMEoffset()
     return (t);
 }
 
-int
-clock_gettime(int X, struct timeval *tv)
+int uki_clock_gettime(int X, struct timeval *tv)
 {
     LARGE_INTEGER           t;
     FILETIME            f;
@@ -748,13 +747,14 @@ void uki_usleep(uint64_t usec) {
 }
 
 #define time_to_jiffies(ti) timespec_to_jiffies(ti)
+#define uki_clock_gettime(x,ti) clock_gettime(x,ti)
 static struct timespec ti;
 #endif
 
 void *jiffies_worker(void *id)
 {
 	while (true) {
-		int erc = clock_gettime(CLOCK_BOOTTIME, &ti);
+		int erc = uki_clock_gettime(CLOCK_BOOTTIME, &ti);
 		BUG_ON(erc != 0);
 		jiffies = time_to_jiffies(&ti);
 		__run_timers(&uki_tvec_base);
@@ -768,7 +768,7 @@ static bool initialized = false;
 void init_timers(void)
 {
 	BUG_ON(initialized);
-	int erc = clock_gettime(CLOCK_BOOTTIME, &ti);
+	int erc = uki_clock_gettime(CLOCK_BOOTTIME, &ti);
 	BUG_ON(erc != 0);
 	jiffies = time_to_jiffies(&ti);
 	erc = init_timers_uki();
