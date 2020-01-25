@@ -35,7 +35,7 @@ extern "C" {
 
 #include <limits.h>
 #include <sys/time.h>
-#ifdef __MINGW32__
+#ifdef _WIN32
 #define HZ 100
 #else
 #include <asm-generic/param.h>
